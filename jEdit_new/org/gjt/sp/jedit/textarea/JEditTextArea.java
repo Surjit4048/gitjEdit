@@ -28,6 +28,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 
 import org.gjt.sp.jedit.*;
+import org.gjt.sp.jedit.gui.FontSelector;
 
 import javax.swing.*;
 //}}}
@@ -46,6 +47,7 @@ import javax.swing.*;
  */
 public class JEditTextArea extends TextArea
 {
+	public static int fontSize = 0;
 	//{{{ JEditTextArea constructor
 	/**
 	 * Creates a new JEditTextArea.
@@ -56,6 +58,7 @@ public class JEditTextArea extends TextArea
 		enableEvents(AWTEvent.FOCUS_EVENT_MASK | AWTEvent.KEY_EVENT_MASK);
 		popupEnabled = true;
 		this.view = view;
+		
 	} //}}}
 
 	//{{{ smartHome() method
@@ -91,7 +94,7 @@ public class JEditTextArea extends TextArea
 			break;
 		}
 	} //}}}
-
+	
 	//{{{ smartEnd() method
 	/**
 	 * On subsequent invocations, first moves the caret to the last
@@ -125,6 +128,36 @@ public class JEditTextArea extends TextArea
 		}
 	} //}}}
 
+	public void zoomPlus() {
+		zoomFont(4,true);
+		
+	}
+
+
+	public void zoomMinus() {
+		zoomFont(4,false);
+	}
+	
+	public void zoomFont(int value, boolean isZoomPlus)
+	{	
+		FontSelector currentFont = getCurrentFont();
+		int newFontSize = isZoomPlus ? currentFont.getFont().getSize() + value : currentFont.getFont().getSize() - value;
+		Font newFont = new Font(currentFont.getName(), Font.PLAIN, newFontSize);
+		currentFont.setFont(newFont);
+		this.painter.setFont(newFont);
+		saveFontToPropeties(newFont);
+	}
+	
+	private FontSelector getCurrentFont() {
+		return new FontSelector(jEdit.getFontProperty("view.font"));
+	}
+	
+	private void saveFontToPropeties(Font newFont) {
+		jEdit.setFontProperty("view.font",newFont);
+		jEdit.propertiesChanged();
+		jEdit.saveSettings();
+	}
+	
 	//{{{ showGoToLineDialog() method
 	/**
 	 * Displays the 'go to line' dialog box, and moves the caret to the
